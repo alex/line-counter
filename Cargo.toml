@@ -1,0 +1,12 @@
+[package]
+name = "line-counter"
+version = "0.1.0"
+authors = ["Alex Gaynor <alex@alloy.us>"]
+edition = "2018"
+
+[dependencies]
+memchr = "2"
+nix = "0.15"
+structopt = "0.3"
+num_cpus = "1"
+rayon = "1"
