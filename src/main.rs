@@ -104,9 +104,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         let lines = count_lines(io::stdin().lock())?;
         println!("{}", lines);
     } else {
-        for path in opt.paths {
+        let mut total_lines = 0;
+        for path in &opt.paths {
             let lines = count_lines(File::open(&path)?)?;
+            total_lines += lines;
             println!("{} {}", lines, path.to_string_lossy());
+        }
+        if opt.paths.len() > 1 {
+            println!("{} total", total_lines);
         }
     }
 
