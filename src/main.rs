@@ -63,13 +63,6 @@ fn count_lines_parallel<R: io::Read + std::os::unix::io::AsRawFd>(
 fn count_lines_sequential<R: io::Read + std::os::unix::io::AsRawFd>(
     mut r: R,
 ) -> Result<usize, Box<dyn Error>> {
-    nix::fcntl::posix_fadvise(
-        r.as_raw_fd(),
-        0,
-        0,
-        nix::fcntl::PosixFadviseAdvice::POSIX_FADV_SEQUENTIAL,
-    )?;
-
     let mut buf = [0u8; BUF_SIZE];
     let mut lines = 0;
     loop {
@@ -84,6 +77,17 @@ fn count_lines_sequential<R: io::Read + std::os::unix::io::AsRawFd>(
 }
 
 fn count_lines<R: io::Read + std::os::unix::io::AsRawFd>(r: R) -> Result<usize, Box<dyn Error>> {
+    // Use these even for parallel reads, since what it's actually doing is
+    // telling the kernel "perform larger read-aheads on underlying block
+    // device and put that in the page cache", which works fine with our pread
+    // pattern.
+    nix::fcntl::posix_fadvise(
+        r.as_raw_fd(),
+        0,
+        0,
+        nix::fcntl::PosixFadviseAdvice::POSIX_FADV_SEQUENTIAL,
+    )?;
+
     let st = nix::sys::stat::fstat(r.as_raw_fd())?;
     if nix::sys::stat::SFlag::from_bits_truncate(st.st_mode)
         .contains(nix::sys::stat::SFlag::S_IFREG)
