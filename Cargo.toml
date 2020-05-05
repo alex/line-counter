@@ -5,7 +5,7 @@ authors = ["Alex Gaynor <alex@alloy.us>"]
 edition = "2018"
 
 [dependencies]
-memchr = "2"
+bytecount = { version = "0.6", features = ["runtime-dispatch-simd"] }
 nix = "0.17"
 structopt = "0.3"
 num_cpus = "1"

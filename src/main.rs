@@ -15,11 +15,7 @@ struct Opt {
 }
 
 fn count_lines_buf(buf: &[u8]) -> usize {
-    let mut lines = 0;
-    for _ in memchr::memchr_iter(b'\n', &buf) {
-        lines += 1;
-    }
-    lines
+    bytecount::count(buf, b'\n')
 }
 
 const BUF_SIZE: usize = 32768;
