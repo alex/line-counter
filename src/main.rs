@@ -1,20 +1,12 @@
+use std::env;
 use std::convert::TryInto;
 use std::error::Error;
 use std::fs::File;
 use std::io;
-use std::path::PathBuf;
 use std::ptr;
 use std::slice;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-
-use structopt::StructOpt;
-
-#[derive(StructOpt)]
-#[structopt(name = "line-counter")]
-struct Opt {
-    paths: Vec<PathBuf>,
-}
 
 fn count_lines_buf(buf: &[u8]) -> usize {
     bytecount::count(buf, b'\n')
@@ -100,18 +92,20 @@ fn count_lines<R: io::Read + std::os::unix::io::AsRawFd>(r: R) -> Result<usize, 
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let opt = Opt::from_args();
-    if opt.paths.is_empty() {
+	let args = env::args().skip(1);
+	let num_args = args.len();
+
+    if num_args == 0 {
         let lines = count_lines(io::stdin().lock())?;
         println!("{}", lines);
     } else {
         let mut total_lines = 0;
-        for path in &opt.paths {
+        for path in args {
             let lines = count_lines(File::open(&path)?)?;
             total_lines += lines;
-            println!("{} {}", lines, path.to_string_lossy());
+            println!("{} {}", lines, path);
         }
-        if opt.paths.len() > 1 {
+        if num_args > 1 {
             println!("{} total", total_lines);
         }
     }
