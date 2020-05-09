@@ -2,7 +2,7 @@
 
 High performance implementation of a subset of `wc -l`. Counts the number of `\n` that appear in a file... and nothing more.
 
-Seems to be roughly 2x faster than `wc -l` on a 4.2GB CSV with 28 million lines.
+Seems to be nearly 3x faster than `wc -l` on a 4.2GB CSV with 28 million lines.
 
 Usage:
 

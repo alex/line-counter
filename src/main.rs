@@ -3,6 +3,8 @@ use std::error::Error;
 use std::fs::File;
 use std::io;
 use std::path::PathBuf;
+use std::ptr;
+use std::slice;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
@@ -29,35 +31,34 @@ fn count_lines_parallel<R: io::Read + std::os::unix::io::AsRawFd>(
         return count_lines_sequential(r);
     }
 
+    let ptr = unsafe {
+        nix::sys::mman::mmap(
+            ptr::null_mut(),
+            file_size,
+            nix::sys::mman::ProtFlags::PROT_READ,
+            nix::sys::mman::MapFlags::MAP_PRIVATE,
+            r.as_raw_fd(),
+            0,
+        )?
+    };
+
+    let data = unsafe { slice::from_raw_parts(ptr as *const u8, file_size) };
+
     let chunk_size = file_size / num_chunks;
     let mut chunks = (0..num_chunks - 1)
         .map(|i| (i * chunk_size..(i + 1) * chunk_size))
         .collect::<Vec<_>>();
     chunks.push((num_chunks - 1) * chunk_size..file_size);
-
-    let raw_fd = r.as_raw_fd();
-    Ok(chunks
+    let count = chunks
         .par_iter()
-        .map(|range| {
-            let mut buf = [0u8; BUF_SIZE];
-            let mut pos = range.start;
-            let mut lines = 0;
-            while pos < range.end {
-                let n = nix::sys::uio::pread(
-                    raw_fd,
-                    &mut buf[..BUF_SIZE.min(range.end - pos)],
-                    pos.try_into().unwrap(),
-                )
-                .unwrap();
-                if n == 0 {
-                    break;
-                }
-                lines += count_lines_buf(&buf[..n]);
-                pos += n;
-            }
-            lines
-        })
-        .sum())
+        .map(|range| count_lines_buf(&data[range.start..range.end]))
+        .sum();
+
+    unsafe {
+        nix::sys::mman::munmap(ptr, file_size)?;
+    }
+
+    Ok(count)
 }
 
 fn count_lines_sequential<R: io::Read + std::os::unix::io::AsRawFd>(
