@@ -1,5 +1,5 @@
-use std::env;
 use std::convert::TryInto;
+use std::env;
 use std::error::Error;
 use std::fs::File;
 use std::io;
@@ -92,8 +92,8 @@ fn count_lines<R: io::Read + std::os::unix::io::AsRawFd>(r: R) -> Result<usize, 
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-	let args = env::args().skip(1);
-	let num_args = args.len();
+    let args = env::args().skip(1);
+    let num_args = args.len();
 
     if num_args == 0 {
         let lines = count_lines(io::stdin().lock())?;
