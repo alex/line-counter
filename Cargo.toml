@@ -6,6 +6,6 @@ edition = "2018"
 
 [dependencies]
 bytecount = { version = "0.6", features = ["runtime-dispatch-simd"] }
-nix = "0.18"
+nix = "0.19"
 num_cpus = "1"
 rayon = "1"
