@@ -97,16 +97,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     if num_args == 0 {
         let lines = count_lines(io::stdin().lock())?;
-        println!("{}", lines);
+        println!("{lines}");
     } else {
         let mut total_lines = 0;
         for path in args {
             let lines = count_lines(File::open(&path)?)?;
             total_lines += lines;
-            println!("{} {}", lines, path);
+            println!("{lines} {path}");
         }
         if num_args > 1 {
-            println!("{} total", total_lines);
+            println!("{total_lines} total");
         }
     }
 
