@@ -3,7 +3,7 @@ use std::env;
 use std::error::Error;
 use std::fs::File;
 use std::io;
-use std::ptr;
+use std::num::NonZeroUsize;
 use std::slice;
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -25,8 +25,8 @@ fn count_lines_parallel<R: io::Read + std::os::unix::io::AsRawFd>(
 
     let ptr = unsafe {
         nix::sys::mman::mmap(
-            ptr::null_mut(),
-            file_size,
+            None,
+            NonZeroUsize::new(file_size).unwrap(),
             nix::sys::mman::ProtFlags::PROT_READ,
             nix::sys::mman::MapFlags::MAP_PRIVATE,
             r.as_raw_fd(),
