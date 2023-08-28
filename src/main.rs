@@ -14,7 +14,7 @@ fn count_lines_buf(buf: &[u8]) -> usize {
 
 const BUF_SIZE: usize = 32768;
 
-fn count_lines_parallel<R: io::Read + std::os::unix::io::AsRawFd>(
+fn count_lines_parallel<R: io::Read + std::os::fd::AsFd + std::os::unix::io::AsRawFd>(
     r: R,
     file_size: usize,
 ) -> Result<usize, Box<dyn Error>> {
@@ -29,7 +29,7 @@ fn count_lines_parallel<R: io::Read + std::os::unix::io::AsRawFd>(
             NonZeroUsize::new(file_size).unwrap(),
             nix::sys::mman::ProtFlags::PROT_READ,
             nix::sys::mman::MapFlags::MAP_PRIVATE,
-            r.as_raw_fd(),
+            Some(r),
             0,
         )?
     };
@@ -69,7 +69,9 @@ fn count_lines_sequential<R: io::Read + std::os::unix::io::AsRawFd>(
     Ok(lines)
 }
 
-fn count_lines<R: io::Read + std::os::unix::io::AsRawFd>(r: R) -> Result<usize, Box<dyn Error>> {
+fn count_lines<R: io::Read + std::os::fd::AsFd + std::os::unix::io::AsRawFd>(
+    r: R,
+) -> Result<usize, Box<dyn Error>> {
     // Use these even for parallel reads, since what it's actually doing is
     // telling the kernel "perform larger read-aheads on underlying block
     // device and put that in the page cache", which works fine with our pread
