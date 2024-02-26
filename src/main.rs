@@ -29,12 +29,12 @@ fn count_lines_parallel<R: io::Read + std::os::fd::AsFd + std::os::unix::io::AsR
             NonZeroUsize::new(file_size).unwrap(),
             nix::sys::mman::ProtFlags::PROT_READ,
             nix::sys::mman::MapFlags::MAP_PRIVATE,
-            Some(r),
+            r,
             0,
         )?
     };
 
-    let data = unsafe { slice::from_raw_parts(ptr as *const u8, file_size) };
+    let data = unsafe { slice::from_raw_parts(ptr.as_ptr().cast(), file_size) };
 
     let chunk_size = file_size / num_chunks;
     let mut chunks = (0..num_chunks - 1)
