@@ -2,7 +2,7 @@
 name = "line-counter"
 version = "0.1.0"
 authors = ["Alex Gaynor <alex@alloy.us>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 bytecount = { version = "0.6", features = ["runtime-dispatch-simd"] }
