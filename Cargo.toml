@@ -6,6 +6,6 @@ edition = "2024"
 
 [dependencies]
 bytecount = { version = "0.6", features = ["runtime-dispatch-simd"] }
-nix = { version = "0.29", features = ["fs", "mman"] }
+nix = { version = "0.30", features = ["fs", "mman"] }
 num_cpus = "1"
 rayon = "1"

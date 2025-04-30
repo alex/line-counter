@@ -77,13 +77,13 @@ fn count_lines<R: io::Read + std::os::fd::AsFd + std::os::unix::io::AsRawFd>(
     // device and put that in the page cache", which works fine with our pread
     // pattern.
     nix::fcntl::posix_fadvise(
-        r.as_raw_fd(),
+        &r,
         0,
         0,
         nix::fcntl::PosixFadviseAdvice::POSIX_FADV_SEQUENTIAL,
     )?;
 
-    let st = nix::sys::stat::fstat(r.as_raw_fd())?;
+    let st = nix::sys::stat::fstat(&r)?;
     if nix::sys::stat::SFlag::from_bits_truncate(st.st_mode)
         .contains(nix::sys::stat::SFlag::S_IFREG)
     {
