@@ -38,7 +38,7 @@ fn count_lines_parallel<R: io::Read + std::os::fd::AsFd + std::os::unix::io::AsR
 
     let chunk_size = file_size / num_chunks;
     let mut chunks = (0..num_chunks - 1)
-        .map(|i| (i * chunk_size..(i + 1) * chunk_size))
+        .map(|i| i * chunk_size..(i + 1) * chunk_size)
         .collect::<Vec<_>>();
     chunks.push((num_chunks - 1) * chunk_size..file_size);
     let count = chunks
